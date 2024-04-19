@@ -1,11 +1,11 @@
 import express from "express";
-import authMiddleware from "../middleware/authmiddleware.js";
 import { User } from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import otpGenerator from "otp-generation";
 import dotenv from "dotenv";
 import { v4 as uuidv4 } from "uuid";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 //.env config
 dotenv.config();
@@ -140,7 +140,7 @@ router.post("/forgotPassword", async (req, res) => {
 });
 
 const tokenToEmailMap = new Map();
-router.post("/verify-otp", async (req, res) => {
+router.post("/verifyOtp", async (req, res) => {
   const { email, otp } = req.body;
 
   try {
@@ -171,7 +171,7 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-router.post("/reset-password", async (req, res) => {
+router.post("/resetPassword", async (req, res) => {
   const { token, password, password2 } = req.body;
 
   try {

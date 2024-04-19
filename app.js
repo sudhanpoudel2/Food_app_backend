@@ -7,6 +7,7 @@ import connectDb from "./config/db.js";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import shopRouter from "./routes/shopRoutes.js";
+import categoryRouter from "./routes/categoryRoutes.js";
 
 //.env config
 dotenv.config();
@@ -24,6 +25,7 @@ app.use(morgan("dev"));
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/shop", shopRouter);
+app.use("/api/v1/category", categoryRouter);
 
 const port = process.env.PORT;
 

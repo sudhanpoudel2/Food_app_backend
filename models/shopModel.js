@@ -9,7 +9,7 @@ const shopSchema = new Schema(
     imageUrl: {
       type: String,
     },
-    items: {
+    foods: {
       type: Array,
     },
     time: {

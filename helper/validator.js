@@ -50,3 +50,12 @@ export const registerValidation = [
   //     })
   //     .withMessage("Please upload an image jpge,jpg"),
 ];
+
+export const shopValidation = [
+  check("title", "title is required").not().isEmpty(),
+  check("coords", "coords is required").not().isEmpty(),
+];
+
+export const categoryValidation = [
+  check("title", "title is required").not().isEmpty(),
+];

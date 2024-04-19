@@ -8,19 +8,12 @@ const router = express.Router();
 
 router.post("/register", registerValidation, async (req, res) => {
   try {
-    const { userName, email, password, address, phone } = req.body;
-    // if (!userName || !email || !password || !address || !phone) {
-    //   return res.status(400).send({ message: "Please provide all fields" });
-    // }
     const error = validationResult(req);
     if (!error.isEmpty()) {
       return res.status(400).send({ error: error.array() });
     }
 
-    // const existing = await User.findOne({ email });
-    // if (existing) {
-    //   return res.status(400).send({ message: "Email already exists!" });
-    // }
+    const { userName, email, password, address, phone } = req.body;
 
     // Hash Password
     const hashPassword = await bcrypt.hash(password, 10);
