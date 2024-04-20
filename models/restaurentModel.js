@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const shopSchema = new Schema(
+const restaurentSchema = new Schema(
   {
     title: {
       type: String,
@@ -52,4 +52,4 @@ const shopSchema = new Schema(
   { timestamps: true }
 );
 
-export const Shop = mongoose.model("Shop", shopSchema);
+export const Restaurent = mongoose.model("Restaurent", restaurentSchema);
