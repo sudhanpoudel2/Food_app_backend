@@ -59,3 +59,10 @@ export const shopValidation = [
 export const categoryValidation = [
   check("title", "title is required").not().isEmpty(),
 ];
+
+export const foodValidation = [
+  check("title", "title is required").not().isEmpty,
+  check("description", "description is required").not().isEmpty(),
+  check("price", "price is required").not().isEmpty(),
+  check("resturent", "resturent is required").not().isEmpty(),
+];
