@@ -2,6 +2,7 @@ import express from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
 import { foodValidation } from "../helper/validator.js";
 import { Food } from "../models/foodModel.js";
+import { validationResult } from "express-validator";
 
 const router = express.Router();
 
@@ -35,7 +36,7 @@ router.post("/", foodValidation, authMiddleware, async (req, res) => {
       restaurent,
       rating,
     });
-    res.status(201).send({ message: "food uploades successfully" });
+    res.status(200).send({ message: "food uploades successfully" });
   } catch (error) {
     console.error(error);
     res
