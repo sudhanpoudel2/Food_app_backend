@@ -64,5 +64,5 @@ export const foodValidation = [
   check("title", "Title is required").not().isEmpty(),
   check("description", "Description is required").not().isEmpty(),
   check("price", "Price is required").not().isEmpty(),
-  check("resturent", "Restaurant is required").not().isEmpty(),
+  check("restaurant", "Restaurant is required").not().isEmpty(),
 ];

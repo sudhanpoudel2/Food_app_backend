@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 import connectDb from "./config/db.js";
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
-import restaurentRouter from "./routes/restaurentRoutes.js";
+import restaurantRouter from "./routes/restaurantRoutes.js";
 import categoryRouter from "./routes/categoryRoutes.js";
 import foodRouter from "./routes/foodRoutes.js";
 
@@ -25,7 +25,7 @@ app.use(morgan("dev"));
 //routes
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
-app.use("/api/v1/restaurent", restaurentRouter);
+app.use("/api/v1/restaurent", restaurantRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/food", foodRouter);
 

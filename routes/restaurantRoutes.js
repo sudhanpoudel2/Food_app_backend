@@ -1,6 +1,6 @@
 import express from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
-import { Restaurent } from "../models/restaurentModel.js";
+import { Restaurant } from "../models/restaurantModel.js";
 import { shopValidation } from "../helper/validator.js";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
@@ -26,7 +26,7 @@ router.post("/", shopValidation, authMiddleware, async (req, res) => {
       code,
       coords,
     } = req.body;
-    const newShop = await Restaurent.create({
+    const newShop = await Restaurant.create({
       title,
       imageUrl,
       foods,
@@ -48,28 +48,28 @@ router.post("/", shopValidation, authMiddleware, async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const restaurent = await Restaurent.find({});
-    if (!restaurent) {
+    const restaurant = await Restaurant.find({});
+    if (!restaurant) {
       res.status(404).send({ message: "no restaurent available!!" });
     }
     res.status(200).send({
-      totalCount: restaurent.length,
-      restaurent,
+      totalCount: restaurant.length,
+      restaurant,
       message: "",
     });
   } catch (error) {
     console.log(error);
-    res.status(400).send("error in get restaurent api", error);
+    res.status(400).send("error in get restaurant api", error);
   }
 });
 
 router.get("/:id", async (req, res) => {
   try {
-    const restaurentID = req.params.id;
-    if (!restaurentID) {
+    const restaurantID = req.params.id;
+    if (!restaurantID) {
       return res.status(400).send({ message: "please provide valid Id" });
     }
-    const getShop = await Restaurent.findById(restaurentID);
+    const getShop = await Restaurant.findById(restaurantID);
 
     res.status(200).send({
       getShop,
@@ -82,18 +82,18 @@ router.get("/:id", async (req, res) => {
 
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
-    const restaurentID = req.params.id;
-    if (!restaurentID) {
-      return res.status(404).send({ message: "please provide restaurentID" });
+    const restaurantID = req.params.id;
+    if (!restaurantID) {
+      return res.status(404).send({ message: "please provide restaurantID" });
     }
-    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-      return res.status(400).json({ error: "Invalid category ID format" });
+    if (!mongoose.Types.ObjectId.isValid(restaurantID)) {
+      return res.status(400).json({ error: "Invalid restaurant ID format" });
     }
-    const shop = await Restaurent.findById(restaurentID);
+    const shop = await Restaurant.findById(restaurantID);
     if (!shop) {
       res.status(400).send({ message: "No shop found with this ID" });
     }
-    await Restaurent.findByIdAndDelete(restaurentID);
+    await Restaurant.findByIdAndDelete(restaurantID);
 
     res.status(200).send({ message: "Shop deleted successfully!" });
   } catch (error) {
