@@ -2,21 +2,20 @@ import mongoose, { Schema } from "mongoose";
 
 const orderSchema = new Schema(
   {
-    food: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Food",
-      },
-    ],
-    payment: {},
-    buyer: {
+    cart: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Cart",
+    },
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    status: {
-      type: String,
-      enum: ["preparing", "prepared", "on the way", "deliverd"],
-      default: "preparing",
+    totalPayment: {
+      type: Numbers,
+    },
+    dateOrder: {
+      type: Date,
+      default: Date.now,
     },
   },
   { timestamps: true }
