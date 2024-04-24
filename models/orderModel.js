@@ -11,7 +11,7 @@ const orderSchema = new Schema(
       ref: "User",
     },
     totalPayment: {
-      type: Numbers,
+      type: Number,
     },
     dateOrder: {
       type: Date,
