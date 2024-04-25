@@ -10,8 +10,18 @@ const orderSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    totalPayment: {
+    address: {
+      type: String,
+    },
+    contact: {
       type: Number,
+    },
+    deliveryAddress: {
+      type: String,
+    },
+    status: {
+      type: String,
+      default: "Ordered",
     },
     dateOrder: {
       type: Date,

@@ -10,6 +10,7 @@ import restaurantRouter from "./routes/restaurantRoutes.js";
 import categoryRouter from "./routes/categoryRoutes.js";
 import foodRouter from "./routes/foodRoutes.js";
 import cartRouter from "./routes/cartRoutes.js";
+import orderRouter from "./routes/orderRoutes.js";
 
 //.env config
 dotenv.config();
@@ -30,6 +31,7 @@ app.use("/api/v1/restaurent", restaurantRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/food", foodRouter);
 app.use("/api/v1/cart", cartRouter);
+app.use("/api/v1/order", orderRouter);
 
 const port = process.env.PORT;
 

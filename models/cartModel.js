@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 
 const cartItemSchema = new Schema(
   {
-    foodId: {
+    foodID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Food",
     },
