@@ -172,52 +172,26 @@ router.delete("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/place-order", authMiddleware, async (req, res) => {
-  try {
-    const { cart } = req.body;
-    let total = 0;
-
-    cart.map((i) => {
-      total += i.price;
-    });
-
-    const newOrder = new Order({
-      food: cart,
-      payment: total,
-      buyer: req.body.id,
-    });
-
-    const saveOrder = newOrder.save();
-
-    res
-      .status(200)
-      .send({ saveOrder: saveOrder, message: "order place successfully!" });
-  } catch (error) {
-    console.log(error);
-    res.status(400).send({ message: "Error in place order api", error });
-  }
-});
-
 // Order Status
-router.post(
-  "/order-status/:id",
-  authMiddleware,
-  adminMiddleware,
-  async (req, res) => {
-    try {
-      const orderID = req.params.id;
-      const { status } = req.body;
-      const order = await Order.findByIdAndUpdate(
-        orderID,
-        { status },
-        { new: true }
-      );
-      res.status(200).send({ message: "order status updated", order });
-    } catch (error) {
-      console.log(error);
-      res.status(400).send({ message: "Error in order status api", error });
-    }
-  }
-);
+// router.post(
+//   "/order-status/:id",
+//   authMiddleware,
+//   adminMiddleware,
+//   async (req, res) => {
+//     try {
+//       const orderID = req.params.id;
+//       const { status } = req.body;
+//       const order = await Order.findByIdAndUpdate(
+//         orderID,
+//         { status },
+//         { new: true }
+//       );
+//       res.status(200).send({ message: "order status updated", order });
+//     } catch (error) {
+//       console.log(error);
+//       res.status(400).send({ message: "Error in order status api", error });
+//     }
+//   }
+// );
 
 export default router;

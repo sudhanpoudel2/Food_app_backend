@@ -12,20 +12,33 @@ router.post("/", authMiddleware, async (req, res) => {
     if (!userID) {
       return res.status(400).send({ message: "User not found" });
     }
+
+    const foodDetails = await Food.findById(foodID);
+
+    if (!foodDetails) {
+      return res.status(400).send({ message: "Food not found" });
+    }
+
+    if (!foodDetails.isAvailable) {
+      return res
+        .status(400)
+        .send({ message: "Sorry, this item is currently not available." });
+    }
     const cart = await Cart.findOne({ userID }).populate("cartItems.foodID");
 
     if (!cart) {
-      const cart = await Cart.create({ userID, cartItems: [] });
+      await Cart.create({ userID, cartItems: [] });
     }
 
-    const existingItemIndex = cart.cartItems.findIndex(
+    const existingItem = cart.cartItems.findIndex(
       (item) => item.foodID.toString() === foodID
     );
 
-    if (existingItemIndex !== -1) {
-      const existingItem = cart.cartItems[existingItemIndex];
-      existingItem.quantity = parseInt(quantity);
-      existingItem.total = existingItem.quantity * existingItem.price;
+    if (existingItem !== -1) {
+      cart.cartItems[existingItem].quantity += parseInt(quantity);
+      cart.cartItems[existingItem].total =
+        cart.cartItems[existingItem].quantity *
+        cart.cartItems[existingItem].price;
     } else {
       const foodDetails = await Food.findById(foodID);
       if (!foodDetails) {
@@ -87,10 +100,11 @@ router.delete("/:foodID", authMiddleware, async (req, res) => {
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const userID = req.body.id;
-    const cart = await Cart.findOne({ userID });
+    const cart = await Cart.findOne({ userID }).populate("cartItems.foodID");
     if (!cart) {
       return res.status(400).send({ message: "cart not found for this user!" });
     }
+
     res.status(200).send({ message: "Cart found successfully", cart });
   } catch (error) {
     console.log(error);
