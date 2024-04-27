@@ -69,6 +69,9 @@ export const foodValidation = [
 
 export const orderValidation = [
   check("address", "Address is required").not().isEmpty(),
-  check("contact", "Contact is required").not().isEmpty(),
+  check("phone", "phone number should be contains 10 digits").isLength({
+    min: 10,
+    max: 10,
+  }),
   check("deliveryAddress", "Delivery address is required").not().isEmpty(),
 ];
