@@ -37,18 +37,18 @@ export const registerValidation = [
     }
     return true;
   }),
-  //   check("image")
-  //     .custom((value, { req }) => {
-  //       if (
-  //         req.file.mimetype === "image/jpeg" ||
-  //         req.file.mimetype === "image/jpg"
-  //       ) {
-  //         return true;
-  //       } else {
-  //         return false;
-  //       }
-  //     })
-  //     .withMessage("Please upload an image jpge,jpg"),
+  check("image")
+    .custom((value, { req }) => {
+      if (
+        req.file.mimetype === "image/jpeg" ||
+        req.file.mimetype === "image/jpg"
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    })
+    .withMessage("Please upload an image jpge,jpg"),
 ];
 
 export const shopValidation = [
