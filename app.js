@@ -11,6 +11,7 @@ import categoryRouter from "./routes/categoryRoutes.js";
 import foodRouter from "./routes/foodRoutes.js";
 import cartRouter from "./routes/cartRoutes.js";
 import orderRouter from "./routes/orderRoutes.js";
+import paymentRouter from "./routes/paymentRoutes.js";
 
 //.env config
 dotenv.config();
@@ -32,6 +33,7 @@ app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/food", foodRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/payment", paymentRouter);
 
 const port = process.env.PORT;
 

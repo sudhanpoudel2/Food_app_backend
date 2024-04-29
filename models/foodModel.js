@@ -14,11 +14,11 @@ const foodSchema = new Schema(
       type: Number,
       required: [true, "food price is  required"],
     },
-    imageUrl: {
-      type: String,
-      default:
-        "https://ps.w.org/rdv-category-image/assets/icon-256x256.png?rev=2599260",
-    },
+    images: [
+      {
+        type: String,
+      },
+    ],
     foodTags: {
       type: String,
     },

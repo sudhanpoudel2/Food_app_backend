@@ -65,6 +65,19 @@ export const foodValidation = [
   check("description", "Description is required").not().isEmpty(),
   check("price", "Price is required").not().isEmpty(),
   check("restaurant", "Restaurant is required").not().isEmpty(),
+  // check("image")
+  //   .custom((value, { req }) => {
+  //     if (
+  //       req.file.mimetype === "images/jpeg" ||
+  //       req.file.mimetype === "images/jpg" ||
+  //       req.file.mimetype === "images/png"
+  //     ) {
+  //       return true;
+  //     } else {
+  //       return false;
+  //     }
+  //   })
+  //   .withMessage("Please upload an image jpge,jpg and png"),
 ];
 
 export const orderValidation = [

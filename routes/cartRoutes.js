@@ -9,42 +9,39 @@ router.post("/", authMiddleware, async (req, res) => {
   try {
     const { foodID, quantity } = req.body;
     const userID = req.body.id;
+
     if (!userID) {
-      return res.status(400).send({ message: "User not found" });
+      return res.status(400).send({ message: "User ID not provided" });
     }
 
     const foodDetails = await Food.findById(foodID);
-
     if (!foodDetails) {
       return res.status(400).send({ message: "Food not found" });
     }
+
+    let cart = await Cart.findOne({ userID });
+    if (!cart) {
+      cart = await Cart.create({ userID, cartItems: [] });
+    }
+
+    let existingItemIndex = cart.cartItems.findIndex(
+      (item) => item.foodID.toString() === foodID
+    );
 
     if (!foodDetails.isAvailable) {
       return res
         .status(400)
         .send({ message: "Sorry, this item is currently not available." });
     }
-    const cart = await Cart.findOne({ userID }).populate("cartItems.foodID");
+    console.log("Existing item index:", existingItemIndex);
 
-    if (!cart) {
-      await Cart.create({ userID, cartItems: [] });
-    }
+    if (existingItemIndex !== -1) {
+      cart.cartItems[existingItemIndex].quantity += parseInt(quantity);
 
-    const existingItem = cart.cartItems.findIndex(
-      (item) => item.foodID.toString() === foodID
-    );
-
-    if (existingItem !== -1) {
-      cart.cartItems[existingItem].quantity += parseInt(quantity);
-      cart.cartItems[existingItem].total =
-        cart.cartItems[existingItem].quantity *
-        cart.cartItems[existingItem].price;
+      cart.cartItems[existingItemIndex].total =
+        cart.cartItems[existingItemIndex].quantity *
+        cart.cartItems[existingItemIndex].price;
     } else {
-      const foodDetails = await Food.findById(foodID);
-      if (!foodDetails) {
-        return res.status(400).send({ message: "food not found" });
-      }
-
       const newItem = {
         foodID: foodDetails._id,
         food: foodDetails.title,
@@ -52,17 +49,19 @@ router.post("/", authMiddleware, async (req, res) => {
         price: foodDetails.price,
         total: parseInt(foodDetails.price * quantity),
       };
-
       cart.cartItems.push(newItem);
     }
+
     cart.subTotal = cart.cartItems.reduce((acc, item) => acc + item.total, 0);
 
     await cart.save();
 
     res.status(200).send({ message: "Food added to cart successfully!", cart });
   } catch (error) {
-    console.log(error);
-    res.status(400).send({ message: "error is add to cart api", error });
+    console.error(error);
+    res
+      .status(500)
+      .send({ message: "Error in add to cart API", error: error.message });
   }
 });
 

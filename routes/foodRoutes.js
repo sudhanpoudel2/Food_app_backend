@@ -6,47 +6,131 @@ import { validationResult } from "express-validator";
 import mongoose from "mongoose";
 import { Order } from "../models/orderModel.js";
 import adminMiddleware from "../middleware/adminMiddleware.js";
+import multer, { MulterError } from "multer";
+import path from "path";
+import fs from "fs";
 
 const router = express.Router();
 
-router.post("/", foodValidation, authMiddleware, async (req, res) => {
-  try {
-    const error = validationResult(req);
-    if (!error.isEmpty()) {
-      return res.status(400).send({ error: error.array() });
-    }
-    const {
-      title,
-      description,
-      price,
-      imageUrl,
-      foodTags,
-      category,
-      code,
-      isAvailable,
-      restaurant,
-      rating,
-    } = req.body;
-    await Food.create({
-      title,
-      description,
-      price,
-      imageUrl,
-      foodTags,
-      category,
-      code,
-      isAvailable,
-      restaurant,
-      rating,
-    });
-    res.status(200).send({ message: "food uploades successfully" });
-  } catch (error) {
-    console.error(error);
-    res
-      .status(400)
-      .send({ message: "Error in create food api", error: error.message });
+const allowedExtensions = [".jpg", ".jpeg", ".png"];
+
+const ensureDirectoryExists = (directory) => {
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
   }
+};
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Destination directory for storing uploaded images
+    const destinationDirectory = "public/image";
+    ensureDirectoryExists(destinationDirectory);
+    cb(null, destinationDirectory);
+  },
+  filename: (req, file, cb) => {
+    // Validate file extension
+    const isAllowedExtension = allowedExtensions.includes(
+      path.extname(file.originalname).toLowerCase()
+    );
+    if (!isAllowedExtension) {
+      return cb(new Error("INVALID_FILE_TYPE"));
+    }
+
+    // Generate unique filename
+    const fileName = file.originalname.replace(/\s+/g, "_");
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const fileExtension = path.extname(fileName);
+    const uniqueFileName = `${fileName}-${uniqueSuffix}${fileExtension}`;
+
+    // Callback with the generated filename
+    cb(null, uniqueFileName);
+  },
 });
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024, // 1 MB file size limit
+    files: 4, // Maximum of 4 files allowed
+  },
+});
+
+const handleMulterErrors = (err, req, res, next) => {
+  console.log("Error:", err.code);
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).send({
+      message:
+        "The file size exceeded the limit. Please select a smaller file.",
+    });
+  } else if (err.code === "LIMIT_FILE_COUNT") {
+    return res.status(400).send({
+      message: "You can only upload a maximum of 4 files at a time.",
+    });
+  } else if (err.code === "INVALID_FILE_TYPE") {
+    return res.status(400).send({
+      message: "The file type is not allowed. Only png, jpg, jpeg are allowed.",
+    });
+  } else {
+    return res.status(400).send({
+      message: "An error occurred while uploading files.",
+    });
+  }
+};
+
+router.post(
+  "/",
+  upload.array("images", 4),
+  handleMulterErrors,
+  foodValidation,
+  authMiddleware,
+  async (req, res) => {
+    let images = [];
+    try {
+      const error = validationResult(req);
+      if (!error.isEmpty()) {
+        return res.status(400).send({ error: error.array() });
+      }
+
+      const basePath = `http://localhost:8080/public/image/`;
+      images = req.files.map((file) => `${basePath}${file.filename}`);
+      const {
+        title,
+        description,
+        price,
+        foodTags,
+        category,
+        code,
+        isAvailable,
+        restaurant,
+        rating,
+      } = req.body;
+
+      await Food.create({
+        title,
+        description,
+        price,
+        images,
+        foodTags,
+        category,
+        code,
+        isAvailable,
+        restaurant,
+        rating,
+      });
+
+      res.status(200).send({ message: "Food uploaded successfully" });
+    } catch (error) {
+      console.error(error);
+      images.forEach((image) => {
+        const filePath = image.split("/").pop();
+        fs.unlinkSync(`path/to/your/uploaded/images/${filePath}`);
+      });
+      res
+        .status(400)
+        .send({ message: "Error in create food api", error: error.message });
+    }
+  }
+);
 
 router.get("/", async (req, res) => {
   try {
