@@ -83,6 +83,7 @@ router.post(
   handleMulterErrors,
   foodValidation,
   authMiddleware,
+  adminMiddleware,
   async (req, res) => {
     let images = [];
     try {
@@ -197,7 +198,7 @@ router.get("/restaurant/:id", async (req, res) => {
 });
 
 // Update food by id
-router.put("/:id", authMiddleware, async (req, res) => {
+router.put("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const foodID = req.params.id;
     const {
@@ -239,7 +240,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
 });
 
 //Delete food by id
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const foodID = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(foodID)) {

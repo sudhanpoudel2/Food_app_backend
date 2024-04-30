@@ -25,7 +25,9 @@ const orderSchema = new Schema(
     },
     status: {
       type: String,
-      default: "Ordered",
+      required: true,
+      enum: ["created", "paid and processing", "shipping", "delivered"],
+      default: "created",
     },
     dateOrder: {
       type: Date,

@@ -13,7 +13,7 @@ router.post("/register", registerValidation, async (req, res) => {
       return res.status(400).send({ error: error.array() });
     }
 
-    const { userName, email, password, address, phone } = req.body;
+    const { userName, email, password, address, phone, usertype } = req.body;
 
     // Hash Password
     const hashPassword = await bcrypt.hash(password, 10);
@@ -24,6 +24,7 @@ router.post("/register", registerValidation, async (req, res) => {
       password: hashPassword,
       address,
       phone,
+      usertype,
     });
     res.status(201).send({ message: "User registered successfully!" });
   } catch (error) {

@@ -5,46 +5,128 @@ import { shopValidation } from "../helper/validator.js";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
 
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import adminMiddleware from "../middleware/adminMiddleware.js";
+
 const router = express.Router();
 
-router.post("/", shopValidation, authMiddleware, async (req, res) => {
-  try {
-    const error = validationResult(req);
-    if (!error.isEmpty()) {
-      return res.status(400).send({ error: error.array() });
-    }
-    const {
-      title,
-      imageUrl,
-      foods,
-      time,
-      pickup,
-      delivery,
-      isOpen,
-      rating,
-      ratingCount,
-      code,
-      coords,
-    } = req.body;
-    const newShop = await Restaurant.create({
-      title,
-      imageUrl,
-      foods,
-      time,
-      pickup,
-      delivery,
-      isOpen,
-      rating,
-      ratingCount,
-      code,
-      coords,
-    });
-    res.status(200).send({ message: "shop register successfully!!" });
-  } catch (error) {
-    console.log(error);
-    res.status(400).send({ message: "Error in create shop api", error });
+const allowedExtensions = [".jpg", ".jpeg", ".png"];
+
+const ensureDirectoryExists = (directory) => {
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory, { recursive: true });
   }
+};
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Destination directory for storing uploaded images
+    const destinationDirectory = "public/image";
+    ensureDirectoryExists(destinationDirectory);
+    cb(null, destinationDirectory);
+  },
+  filename: (req, file, cb) => {
+    // Validate file extension
+    const isAllowedExtension = allowedExtensions.includes(
+      path.extname(file.originalname).toLowerCase()
+    );
+    if (!isAllowedExtension) {
+      return cb(new Error("INVALID_FILE_TYPE"));
+    }
+
+    // Generate unique filename
+    const fileName = file.originalname.replace(/\s+/g, "_");
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const fileExtension = path.extname(fileName);
+    const uniqueFileName = `${fileName}-${uniqueSuffix}${fileExtension}`;
+
+    // Callback with the generated filename
+    cb(null, uniqueFileName);
+  },
 });
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024, // 1 MB file size limit
+    files: 4, // Maximum of 4 files allowed
+  },
+});
+
+const handleMulterErrors = (err, req, res, next) => {
+  console.log("Error:", err.code);
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).send({
+      message:
+        "The file size exceeded the limit. Please select a smaller file.",
+    });
+  } else if (err.code === "LIMIT_FILE_COUNT") {
+    return res.status(400).send({
+      message: "You can only upload a maximum of 4 files at a time.",
+    });
+  } else if (err.code === "INVALID_FILE_TYPE") {
+    return res.status(400).send({
+      message: "The file type is not allowed. Only png, jpg, jpeg are allowed.",
+    });
+  } else {
+    return res.status(400).send({
+      message: "An error occurred while uploading files.",
+    });
+  }
+};
+
+router.post(
+  "/",
+  upload.array("images", 4),
+  handleMulterErrors,
+  shopValidation,
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    console.log(`rest ${req}`);
+
+    try {
+      const error = validationResult(req);
+      if (!error.isEmpty()) {
+        return res.status(400).send({ error: error.array() });
+      }
+      const basePath = `http://localhost:8080/public/image/`;
+      const images = req.files
+        .map((file) => `${basePath}${file.filename}`)
+        .join(",");
+      const {
+        title,
+        time,
+        pickup,
+        delivery,
+        isOpen,
+        rating,
+        ratingCount,
+        code,
+        coords,
+      } = req.body;
+      const newShop = await Restaurant.create({
+        title,
+        images,
+        time,
+        pickup,
+        delivery,
+        isOpen,
+        rating,
+        ratingCount,
+        code,
+        coords,
+      });
+      // console.log(`rest ${req.body}`);
+      res.status(200).send({ message: "shop register successfully!!" });
+    } catch (error) {
+      console.log(error);
+      res.status(400).send({ message: "Error in create shop api", error });
+    }
+  }
+);
 
 router.get("/", async (req, res) => {
   try {
@@ -80,7 +162,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const restaurantID = req.params.id;
     if (!restaurantID) {

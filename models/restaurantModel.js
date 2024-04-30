@@ -6,11 +6,8 @@ const restaurantSchema = new Schema(
       type: String,
       required: [true, "Shop title is required"],
     },
-    imageUrl: {
+    images: {
       type: String,
-    },
-    foods: {
-      type: Array,
     },
     time: {
       type: String,
