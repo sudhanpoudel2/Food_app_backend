@@ -52,12 +52,12 @@ export const registerValidation = [
 ];
 
 export const shopValidation = [
-  check("title", "title is required").not().isEmpty(),
-  // check("coords", "coords is required").not().isEmpty(),
+  check("title", "Title is required").not().isEmpty(),
+  // check("address", "Address is required").not().isEmpty(),
 ];
 
 export const categoryValidation = [
-  check("title", "title is required").not().isEmpty(),
+  check("title", "Title is required").not().isEmpty(),
 ];
 
 export const foodValidation = [

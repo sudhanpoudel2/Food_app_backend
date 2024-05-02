@@ -86,6 +86,7 @@ router.post(
   adminMiddleware,
   async (req, res) => {
     console.log(`rest ${req}`);
+    const user = req.body.id;
 
     try {
       const error = validationResult(req);
@@ -96,31 +97,42 @@ router.post(
       const images = req.files
         .map((file) => `${basePath}${file.filename}`)
         .join(",");
-      const {
-        title,
-        time,
-        pickup,
-        delivery,
-        isOpen,
-        rating,
-        ratingCount,
-        code,
-        coords,
-      } = req.body;
+      // const {
+      //   title,
+      //   time,
+      //   pickup,
+      //   delivery,
+      //   isOpen,
+      //   rating,
+      //   ratingCount,
+      //   code,
+      //   latitude,
+      //   longitude,
+      // } = req.body;
       const newShop = await Restaurant.create({
-        title,
+        user: user,
+        title: req.body.title,
         images,
-        time,
-        pickup,
-        delivery,
-        isOpen,
-        rating,
-        ratingCount,
-        code,
-        coords,
+        time: req.body.time,
+        pickup: req.body.pickup,
+        delivery: req.body.delivery,
+        isOpen: req.body.isOpen,
+        rating: req.body.rating,
+        ratingCount: req.body.ratingCount,
+        code: req.body.code,
+        address: req.body.address,
+        location: {
+          type: "Point",
+          coordinates: [
+            parseFloat(req.body.longitude),
+            parseFloat(req.body.latitude),
+          ],
+        },
       });
-      // console.log(`rest ${req.body}`);
-      res.status(200).send({ message: "shop register successfully!!" });
+      // console.log(`longitude ${coordinates}`);
+      res
+        .status(200)
+        .send({ message: "shop register successfully!!", newShop });
     } catch (error) {
       console.log(error);
       res.status(400).send({ message: "Error in create shop api", error });
@@ -181,6 +193,42 @@ router.delete("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).send({ message: "Error in delete shop api" });
+  }
+});
+
+router.post("/near-restaurent", authMiddleware, async (req, res) => {
+  try {
+    const latitude = parseFloat(req.body.latitude);
+    const longitude = parseFloat(req.body.longitude);
+
+    if (isNaN(latitude) || isNaN(longitude)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid latitude or longitude values" });
+    }
+
+    const restaurent = await Restaurant.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: "Point",
+            coordinates: [longitude, latitude],
+          },
+          distanceField: "dist.calculated",
+          spherical: true,
+        },
+      },
+      {
+        $match: {
+          "dist.calculated": { $lte: 1609000 },
+        },
+      },
+    ]);
+
+    res.status(200).send({ message: "resturent found", restaurent });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({ message: "Error in near me restaurent api", error });
   }
 });
 

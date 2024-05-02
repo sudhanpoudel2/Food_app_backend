@@ -2,6 +2,10 @@ import mongoose, { Schema } from "mongoose";
 
 const restaurantSchema = new Schema(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     title: {
       type: String,
       required: [true, "Shop title is required"],
@@ -36,14 +40,20 @@ const restaurantSchema = new Schema(
     code: {
       type: String,
     },
-    coords: {
-      id: { type: String },
-      latitude: { type: Number },
-      latitudeDelta: { type: Number },
-      longitude: { type: Number },
-      longitudeDelta: { type: Number },
-      address: { type: String },
-      title: { type: String },
+    // address: {
+    //   type: String,
+    // },
+    location: {
+      type: {
+        type: String,
+      },
+      coordinates: {
+        type: [Number],
+        default: [0.0, 0.0],
+      },
+      address: String,
+      // type: [[[Number]]], // Array of arrays of coordinates [ [ [lon1, lat1], [lon2, lat2], ... ] ]
+      // required: true,
     },
   },
   { timestamps: true }
