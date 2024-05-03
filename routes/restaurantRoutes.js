@@ -97,18 +97,6 @@ router.post(
       const images = req.files
         .map((file) => `${basePath}${file.filename}`)
         .join(",");
-      // const {
-      //   title,
-      //   time,
-      //   pickup,
-      //   delivery,
-      //   isOpen,
-      //   rating,
-      //   ratingCount,
-      //   code,
-      //   latitude,
-      //   longitude,
-      // } = req.body;
       const newShop = await Restaurant.create({
         user: user,
         title: req.body.title,
@@ -198,37 +186,37 @@ router.delete("/:id", authMiddleware, adminMiddleware, async (req, res) => {
 
 router.post("/near-restaurent", authMiddleware, async (req, res) => {
   try {
-    const latitude = parseFloat(req.body.latitude);
     const longitude = parseFloat(req.body.longitude);
+    const latitude = parseFloat(req.body.latitude);
 
-    if (isNaN(latitude) || isNaN(longitude)) {
-      return res
-        .status(400)
-        .json({ message: "Invalid latitude or longitude values" });
-    }
+    const maxDistance = 1000; // Set maximum distance in meters
 
-    const restaurent = await Restaurant.aggregate([
+    const restaurent_details = await Restaurant.aggregate([
       {
         $geoNear: {
           near: {
-            type: "Point",
+            type: "Point", // Ensure the type property is set to "Point"
             coordinates: [longitude, latitude],
+            maxDistance: maxDistance,
           },
+          key: "location",
           distanceField: "dist.calculated",
           spherical: true,
         },
       },
       {
         $match: {
-          "dist.calculated": { $lte: 1609000 },
+          "dist.calculated": { $lte: maxDistance },
         },
       },
     ]);
 
-    res.status(200).send({ message: "resturent found", restaurent });
+    res.status(200).send({ message: "Restaurant details", restaurent_details });
   } catch (error) {
     console.log(error);
-    res.status(400).send({ message: "Error in near me restaurent api", error });
+    res
+      .status(400)
+      .send({ message: "Error in near-restaurent API", error: error.message });
   }
 });
 

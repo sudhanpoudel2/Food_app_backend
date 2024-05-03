@@ -20,6 +20,7 @@ export default async function (req, res, next) {
         next();
       }
     });
+    console.log("user : ", req.body.id);
   } catch (error) {
     console.log(error);
     res.status(500).send({ message: "Error in auth API!!!" });
