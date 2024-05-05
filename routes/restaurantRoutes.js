@@ -189,6 +189,13 @@ router.post("/near-restaurent", authMiddleware, async (req, res) => {
     const longitude = parseFloat(req.body.longitude);
     const latitude = parseFloat(req.body.latitude);
 
+    console.log("Longitude:", longitude);
+    console.log("Latitude:", latitude);
+
+    if (isNaN(longitude) || isNaN(latitude)) {
+      throw new Error("Invalid longitude or latitude provided");
+    }
+
     const maxDistance = 1000; // Set maximum distance in meters
 
     const restaurent_details = await Restaurant.aggregate([
@@ -197,10 +204,9 @@ router.post("/near-restaurent", authMiddleware, async (req, res) => {
           near: {
             type: "Point", // Ensure the type property is set to "Point"
             coordinates: [longitude, latitude],
-            maxDistance: maxDistance,
           },
-          key: "location",
           distanceField: "dist.calculated",
+          maxDistance: maxDistance,
           spherical: true,
         },
       },
