@@ -30,7 +30,6 @@ router.post("/", orderValidation, authMiddleware, async (req, res) => {
       address: req.body.address,
       contact: req.body.contact,
       deliveryAddress: req.body.deliveryAddress,
-      status: "Ordered",
       dateOrder: new Date(),
     });
 
@@ -51,7 +50,6 @@ router.post("/buyNow", authMiddleware, async (req, res) => {
       address: req.body.address,
       contact: req.body.contact,
       deliveryAddress: req.body.deliveryAddress,
-      status: "Ordered",
       dateOrder: new Date(),
     });
     await order.populate("food");
@@ -86,46 +84,4 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-// router.post("/:id", authMiddleware, async (req, res) => {
-//   const id = req.params.id;
-
-//   const buy = await Order.findById(id);
-//   const uid = uuidv4();
-//   const message = `subTotal=${buy.populate(
-//     "cart.subTotal"
-//   )}.transaction_uuid=${uid},product_code=EPAYTEST`;
-//   const hash = CryptoJS.HmacSHA256(message, process.env.ESEWA_SECRET_KEY);
-//   const hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-// });
-
-// router.post("/verify/:id", authMiddleware, async (req, res) => {
-//   const id = req.body.id;
-//   const data = req.query.data;
-//   let decodedString = atob(data);
-//   console.log("dec_string : ", decodedString);
-//   console.log("ds ==", typeof decodedString);
-//   const obj = JSON.parse(decodedString);
-//   console.log("obj == ", typeof obj);
-//   decodedString = JSON.parse(decodedString);
-
-//   switch (decodedString.status) {
-//     case "complete":
-//       try {
-//         console.log(req.session.user);
-//         const userID = req.body.id;
-//         const order = await Order.findById(id);
-//         const uid = uuidv4();
-//         const message = `transaction_code=${decodedString.transaction_code},status=${decodedString.status},subTotal=${decodedString.subTotal},transaction_uuid=${decodedString.transaction_uuid},product_code=${decodedString.product_code},signed_field_names=${decodedString.signed_field_names}`;
-//         console.log(message);
-//         const hash = CryptoJS.HmacSHA256(message, process.env.ESEWA_SECRET_KEY);
-//         const hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-//         console.log(hashInBase64);
-//         console.log(hashInBase64 == decodedString.signature);
-//         const result = hashInBase64 == decodedString.signature;
-//         if (result == false) {
-//           throw "Hash value not matched";
-//         }
-//       } catch (error) {}
-//   }
-// });
 export default router;

@@ -1,5 +1,7 @@
 import { check } from "express-validator";
 import { User } from "../models/userModel.js";
+import { Restaurant } from "../models/restaurantModel.js";
+import { Category } from "../models/categoryModel.js";
 
 export const registerValidation = [
   check("userName", "username is required").not().isEmpty(),
@@ -65,24 +67,26 @@ export const foodValidation = [
   check("description", "Description is required").not().isEmpty(),
   check("price", "Price is required").not().isEmpty(),
   check("restaurant", "Restaurant is required").not().isEmpty(),
-  // check("image")
-  //   .custom((value, { req }) => {
-  //     if (
-  //       req.file.mimetype === "images/jpeg" ||
-  //       req.file.mimetype === "images/jpg" ||
-  //       req.file.mimetype === "images/png"
-  //     ) {
-  //       return true;
-  //     } else {
-  //       return false;
-  //     }
-  //   })
-  //   .withMessage("Please upload an image jpge,jpg and png"),
+  check("restaurant").custom(async (value, { req }) => {
+    const restaurant = await Restaurant.findById(value);
+    if (!restaurant) {
+      throw new Error("Restaurant not found");
+    }
+    return true;
+  }),
+  check("category", "Category is required").not().isEmpty(),
+  check("category").custom(async (value, { req }) => {
+    const category = await Category.findById(value);
+    if (!category) {
+      throw new Error("Category not found");
+    }
+    return true;
+  }),
 ];
 
 export const orderValidation = [
   check("address", "Address is required").not().isEmpty(),
-  check("phone", "phone number should be contains 10 digits").isLength({
+  check("contact", "Contact number should be contains 10 digits").isLength({
     min: 10,
     max: 10,
   }),

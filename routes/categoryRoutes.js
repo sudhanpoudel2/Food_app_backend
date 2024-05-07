@@ -4,26 +4,33 @@ import { Category } from "../models/categoryModel.js";
 import { categoryValidation } from "../helper/validator.js";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
+import adminMiddleware from "../middleware/adminMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", categoryValidation, authMiddleware, async (req, res) => {
-  try {
-    const error = validationResult(req);
-    if (!error.isEmpty()) {
-      return res.status(400).send({ error: error.array() });
+router.post(
+  "/",
+  categoryValidation,
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    try {
+      const error = validationResult(req);
+      if (!error.isEmpty()) {
+        return res.status(400).send({ error: error.array() });
+      }
+      const { title, imageUrl } = req.body;
+      await Category.create({
+        title,
+        imageUrl,
+      });
+      res.status(200).send({ message: "category created successfully" });
+    } catch (error) {
+      console.log(error);
+      res.status(400).send({ message: "error in create category api", error });
     }
-    const { title, imageUrl } = req.body;
-    await Category.create({
-      title,
-      imageUrl,
-    });
-    res.status(200).send({ message: "category created successfully" });
-  } catch (error) {
-    console.log(error);
-    res.status(400).send({ message: "error in create category api", error });
   }
-});
+);
 
 router.get("/", async (req, res) => {
   try {
@@ -40,7 +47,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.put("/:id", authMiddleware, async (req, res) => {
+router.put("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const categoryId = req.params.id;
     const { title, imageUrl } = req.body;
@@ -59,7 +66,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const categoryId = req.params.id;
 
